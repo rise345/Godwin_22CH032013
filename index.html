@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emotion Detector</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 30px auto; }
+    .result { margin-top: 20px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Emotion Detector</h1>
+  <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+    <label>Select image: <input type="file" name="image" accept="image/*" required></label><br><br>
+    <button type="submit">Upload & Predict</button>
+  </form>
+
+  <div id="out" class="result" style="display:none;"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const out = document.getElementById('out');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const data = new FormData(form);
+      out.style.display = 'block';
+      out.innerText = 'Uploading...';
+      const res = await fetch('/predict', { method: 'POST', body: data });
+      if (!res.ok) {
+        const txt = await res.text();
+        out.innerText = 'Error: ' + txt;
+        return;
+      }
+      const j = await res.json();
+      out.innerHTML = '<strong>Prediction:</strong> ' + j.emotion + '<br><img src="' + j.image_url + '" width="200">';
+    });
+  </script>
+</body>
+</html>
